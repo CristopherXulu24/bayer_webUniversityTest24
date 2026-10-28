@@ -1,0 +1,18 @@
+:root{--bg:#f4f6f9;--c:#fff;--t:#17202a;--m:#667;--p:#10384f;--a:#89d329;--bd:#dde3ea;--ok:#1e8e3e;--wa:#b26a00;--bad:#c5221f}
+@media(prefers-color-scheme:dark){:root{--bg:#10151b;--c:#1a222b;--t:#e8edf2;--m:#98a4b0;--p:#1d5c80;--bd:#2c3846;--ok:#5bd17b;--wa:#f2b24c;--bad:#ff7b72}}
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--t)}
+header{background:var(--p);color:#fff;padding:12px 20px}h1{margin:0 0 8px;font-size:20px}h1 small{font-weight:400;opacity:.8;font-size:13px;margin-left:8px}
+nav{display:flex;gap:6px;flex-wrap:wrap}nav button{background:#ffffff22;color:#fff;border:0;padding:7px 13px;border-radius:6px;cursor:pointer}
+nav button.on{background:var(--a);color:#10200a;font-weight:600}
+main{max-width:1200px;margin:18px auto;padding:0 14px}h2{margin:22px 0 8px;font-size:17px}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.kpi b{display:block;font-size:24px}
+.muted{color:var(--m)}.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 9px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{color:var(--m);font-weight:600}td.num{text-align:right}
+label{display:block;font-size:12px;color:var(--m);margin:8px 0 3px}select,input{width:100%;padding:8px;border:1px solid var(--bd);border-radius:6px;background:var(--c);color:var(--t)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.go{margin-top:12px;background:var(--p);color:#fff;border:0;padding:9px 16px;border-radius:6px;cursor:pointer}.go:disabled{opacity:.5}
+.b{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid currentColor}.ok{color:var(--ok)}.warn{color:var(--wa)}.bad{color:var(--bad)}
+.bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}.bar i{display:block;height:14px;background:var(--p);border-radius:3px}.bar span:first-child{width:70px}
+.msg{padding:10px;border-radius:6px;border:1px solid currentColor;margin-top:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.two{grid-template-columns:1fr}}
+nav button{font:inherit;font-size:13px}h2:first-child{margin-top:0}form .row{margin-bottom:4px}.card b{display:block;margin-bottom:4px}.kpi.card{margin:0}

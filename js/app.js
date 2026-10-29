@@ -29,10 +29,17 @@ const MODULOS = {
 const nav = document.querySelector('#nav');
 const vista = document.querySelector('#view');
 const sidebar = document.querySelector('#sidebar');
+const backdrop = document.querySelector('#sidebar-backdrop');
 const connDot = document.querySelector('#conn-dot');
 const connTitle = document.querySelector('#conn-title');
 const connSub = document.querySelector('#conn-sub');
 const darkToggle = document.querySelector('#dark-mode-toggle');
+
+const toggleSidebar = abrir => {
+  sidebar?.classList.toggle('open', abrir);
+  backdrop?.classList.toggle('open', abrir);
+  document.body.classList.toggle('menu-open', abrir);
+};
 
 nav.innerHTML = Object.entries(MODULOS).map(([k, [t, , ico, sep]]) =>
   (sep ? `<div class="sidebar-group-sep">${sep}</div>` : '') +
@@ -66,7 +73,7 @@ Modelo.onEstado(({ modo, sub }) => {
 async function mostrar(k) {
   if (!MODULOS[k]) k = 'resumen';
   nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === k));
-  sidebar?.classList.remove('open');
+  toggleSidebar(false);
   vista.innerHTML = `<div class="loading-state"><div class="spinner"></div><p class="muted" style="margin:0">Cargando ${MODULOS[k][0]}…</p></div>`;
   try {
     await MODULOS[k][1](vista, () => mostrar(k));
@@ -82,12 +89,14 @@ nav.onclick = e => {
 
 document.querySelector('#btn-refresh')?.addEventListener('click', async () => {
   Modelo.limpiarCache(true);
+  toggleSidebar(false);
   await mostrar(location.hash.slice(1));
   toast('Datos actualizados desde la base de datos.');
 });
 
-document.querySelector('#menu-toggle')?.addEventListener('click', () => sidebar?.classList.add('open'));
-document.querySelector('#sidebar-close')?.addEventListener('click', () => sidebar?.classList.remove('open'));
+document.querySelector('#menu-toggle')?.addEventListener('click', () => toggleSidebar(true));
+document.querySelector('#sidebar-close')?.addEventListener('click', () => toggleSidebar(false));
+backdrop?.addEventListener('click', () => toggleSidebar(false));
 
 window.onhashchange = () => mostrar(location.hash.slice(1));
 mostrar(location.hash.slice(1));

@@ -73,7 +73,7 @@ export function table(rows, cols) {
   const celda = (r, c) => {
     const f = c[2], v = r[c[0]];
     const esNum = f === n || f === i0;
-    return `<td class="${esNum ? 'num' : ''}">${f ? f(v, r) : esc(v ?? '–')}</td>`;
+    return `<td data-label="${esc(c[1])}" class="${esNum ? 'num' : ''}">${f ? f(v, r) : esc(v ?? '–')}</td>`;
   };
   return `<div class="tw"><table><thead><tr>${cols.map(c => {
     const esNum = c[2] === n || c[2] === i0;

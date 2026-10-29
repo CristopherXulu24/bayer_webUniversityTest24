@@ -9,23 +9,85 @@ import trazabilidad from './controllers/trazabilidad.js';
 import pedidos from './controllers/pedidos.js';
 import finanzas from './controllers/finanzas.js';
 import laboratorio from './controllers/laboratorio.js';
-import { msg } from './views/ui.js';
+import { Modelo } from './models/api.js';
+import { icon, msg, toast } from './views/ui.js';
 
+// Los 7 módulos principales en el mismo orden que la app Python + 3 módulos complementarios del proyecto
 const MODULOS = {
-  resumen: ['Resumen', resumen], medicamentos: ['Medicamentos', medicamentos], clientes: ['Clientes y bodegas', clientes],
-  lotes: ['Lotes y calidad', lotes], inventario: ['Inventario', inventario], vencimientos: ['Vencimientos', vencimientos],
-  trazabilidad: ['Trazabilidad y recall', trazabilidad], pedidos: ['Pedidos B2B', pedidos], finanzas: ['Finanzas', finanzas], laboratorio: ['Laboratorio', laboratorio],
+  resumen:      ['Resumen', resumen, icon('grid')],
+  medicamentos: ['Medicamentos', medicamentos, icon('pill')],
+  clientes:     ['Clientes y bodegas', clientes, icon('building')],
+  lotes:        ['Lotes y calidad', lotes, icon('flask')],
+  inventario:   ['Inventario', inventario, icon('box')],
+  trazabilidad: ['Trazabilidad y recall', trazabilidad, icon('search')],
+  pedidos:      ['Pedidos B2B', pedidos, icon('cart')],
+  vencimientos: ['Vencimientos FEFO', vencimientos, icon('clock'), 'Analítica y Laboratorio'],
+  finanzas:     ['Finanzas y crédito', finanzas, icon('card')],
+  laboratorio:  ['Laboratorio ACID', laboratorio, icon('activity')],
 };
-const nav = document.querySelector('#nav'), vista = document.querySelector('#view');
-nav.innerHTML = Object.entries(MODULOS).map(([k, [t]]) => `<button data-t="${k}">${t}</button>`).join('');
+
+const nav = document.querySelector('#nav');
+const vista = document.querySelector('#view');
+const sidebar = document.querySelector('#sidebar');
+const connDot = document.querySelector('#conn-dot');
+const connTitle = document.querySelector('#conn-title');
+const connSub = document.querySelector('#conn-sub');
+const darkToggle = document.querySelector('#dark-mode-toggle');
+
+nav.innerHTML = Object.entries(MODULOS).map(([k, [t, , ico, sep]]) =>
+  (sep ? `<div class="sidebar-group-sep">${sep}</div>` : '') +
+  `<button type="button" data-t="${k}"><span class="nav-icon">${ico}</span><span>${t}</span></button>`
+).join('');
+
+// Opción de Modo oscuro dentro de Configuraciones (barra lateral)
+const aplicarModoOscuro = activo => {
+  if (activo) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  if (darkToggle) darkToggle.checked = activo;
+  try { localStorage.setItem('bayer_dark_mode', activo ? '1' : '0'); } catch (_) {}
+};
+
+try {
+  if (localStorage.getItem('bayer_dark_mode') === '1') aplicarModoOscuro(true);
+} catch (_) {}
+
+darkToggle?.addEventListener('change', e => aplicarModoOscuro(e.target.checked));
+
+Modelo.onEstado(({ modo, sub }) => {
+  if (!connDot) return;
+  connDot.className = 'conn-dot ' + (modo === 'oracle' ? '' : 'warn');
+  if (connTitle) connTitle.textContent = modo === 'oracle' ? 'Conexión directa a Oracle' : 'Conexión SQL activa';
+  if (connSub) connSub.textContent = sub;
+});
 
 async function mostrar(k) {
   if (!MODULOS[k]) k = 'resumen';
   nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === k));
-  vista.innerHTML = '<p class="muted">Cargando…</p>';
-  try { await MODULOS[k][1](vista, () => mostrar(k)); }
-  catch (e) { vista.innerHTML = msg(`No se pudo consultar la API: ${e.message}. Revisa API_BASE en js/config.js, que el módulo REST esté publicado y el CORS (Origins Allowed).`, false); }
+  sidebar?.classList.remove('open');
+  vista.innerHTML = `<div class="loading-state"><div class="spinner"></div><p class="muted" style="margin:0">Cargando ${MODULOS[k][0]}…</p></div>`;
+  try {
+    await MODULOS[k][1](vista, () => mostrar(k));
+  } catch (e) {
+    vista.innerHTML = msg(`No se pudo cargar el módulo: ${e.message}. Verifica API_BASE en js/config.js y el servicio ORDS.`, false);
+  }
 }
-nav.onclick = e => { if (e.target.dataset.t) { location.hash = e.target.dataset.t; } };
+
+nav.onclick = e => {
+  const btn = e.target.closest('button[data-t]');
+  if (btn) location.hash = btn.dataset.t;
+};
+
+document.querySelector('#btn-refresh')?.addEventListener('click', async () => {
+  Modelo.limpiarCache(true);
+  await mostrar(location.hash.slice(1));
+  toast('Datos actualizados desde la base de datos.');
+});
+
+document.querySelector('#menu-toggle')?.addEventListener('click', () => sidebar?.classList.add('open'));
+document.querySelector('#sidebar-close')?.addEventListener('click', () => sidebar?.classList.remove('open'));
+
 window.onhashchange = () => mostrar(location.hash.slice(1));
 mostrar(location.hash.slice(1));
